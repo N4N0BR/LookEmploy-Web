@@ -1,0 +1,14 @@
+{
+    "autoload": {
+        "psr-4": {
+            "Api\\": "src/"
+        }
+    },
+    "require": {
+        "cboden/ratchet": "^0.4.x-dev",
+        "vlucas/phpdotenv": "^5.5"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+
+}

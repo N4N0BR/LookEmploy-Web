@@ -1,0 +1,36 @@
+        btnConversar.addEventListener('click', async function(){
+            try {
+                const codigo = document.getElementById('codigoServico').value;
+                console.log('Código do serviço:', codigo);
+                
+                const fd = new FormData();
+                fd.append('codigoServico', codigo);
+                
+                console.log('Fazendo requisição para garantir_contato.php...');
+                const res = await fetch('api_chat/garantir_contato.php', { 
+                    method: 'POST', 
+                    body: fd, 
+                    credentials: 'same-origin' 
+                });
+                
+                console.log('Resposta recebida, status:', res.status);
+                
+                if (!res.ok) {
+                    throw new Error('Erro HTTP: ' + res.status);
+                }
+                
+                const data = await res.json();
+                console.log('Dados retornados:', data);
+                
+                if (data && data.ok && data.openId) {
+                    console.log('Redirecionando para contatos.php?open=' + data.openId);
+                    window.location.href = 'contatos.php?open=' + encodeURIComponent(data.openId);
+                } else {
+                    alert(data.error || 'Não foi possível abrir o chat. Verifique o console para mais detalhes.');
+                    console.error('Erro nos dados:', data);
+                }
+            } catch(e){ 
+                console.error('Erro completo:', e);
+                alert('Erro de rede: ' + e.message + '. Verifique o console (F12) para mais detalhes.');
+            }
+        });
