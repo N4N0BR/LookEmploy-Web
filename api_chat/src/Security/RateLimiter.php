@@ -9,6 +9,18 @@ class RateLimiter
     private $maxMessagesPerHour = 500;
     private $cooldownSeconds = 1;
 
+    public function __construct()
+    {
+        $perMinute = $_ENV['RATE_LIMIT_PER_MINUTE'] ?? $_SERVER['RATE_LIMIT_PER_MINUTE'] ?? getenv('RATE_LIMIT_PER_MINUTE');
+        $perHour = $_ENV['RATE_LIMIT_PER_HOUR'] ?? $_SERVER['RATE_LIMIT_PER_HOUR'] ?? getenv('RATE_LIMIT_PER_HOUR');
+        $cooldown = $_ENV['RATE_LIMIT_COOLDOWN'] ?? $_SERVER['RATE_LIMIT_COOLDOWN'] ?? getenv('RATE_LIMIT_COOLDOWN');
+        $maxAlias = $_ENV['RATE_LIMIT_MAX'] ?? $_SERVER['RATE_LIMIT_MAX'] ?? getenv('RATE_LIMIT_MAX');
+        if ($maxAlias && !$perMinute) { $perMinute = $maxAlias; }
+        if ($perMinute && is_numeric($perMinute)) { $this->maxMessagesPerMinute = (int)$perMinute; }
+        if ($perHour && is_numeric($perHour)) { $this->maxMessagesPerHour = (int)$perHour; }
+        if ($cooldown && is_numeric($cooldown)) { $this->cooldownSeconds = (int)$cooldown; }
+    }
+
     public function checkLimit($userId)
     {
         $now = time();

@@ -479,3 +479,262 @@ Mensagens existentes: 1
 Sucesso! Redirecionando para: 1
 [2025-11-29 11:58:41] [INFO] User:1 IP:Invalid IP Event:SUCCESS_AUTH - []
 [2025-11-29 12:01:22] [INFO] User:1 IP:Invalid IP Event:SUCCESS_AUTH - []
+2025-11-29 12:32:00 - Iniciando debug
+Usuário: 1
+POST recebido: Array
+(
+    [codigoServico] => 1
+)
+
+Código serviço: 1, Meu ID: 1, Tipo: Cliente
+Serviço encontrado: Array
+(
+    [prestador] => 1
+    [cliente] => 1
+    [prestador_usuario_id] => 1
+    [cliente_usuario_id] => 1
+    [prestador_nome] => João
+    [cliente_nome] => Giuliano
+)
+
+Tipo Cliente - Prestador usuario_id: 1
+Mensagens existentes: 1
+Sucesso! Redirecionando para: 1
+2025-11-29 12:36:45 - Iniciando debug
+Usuário: 1
+POST recebido: Array
+(
+    [codigoServico] => 1
+)
+
+Código serviço: 1, Meu ID: 1, Tipo: Cliente
+Serviço encontrado: Array
+(
+    [prestador] => 1
+    [cliente] => 1
+    [prestador_usuario_id] => 1
+    [cliente_usuario_id] => 1
+    [prestador_nome] => João
+    [cliente_nome] => Giuliano
+)
+
+Tipo Cliente - Prestador usuario_id: 1
+Mensagens existentes: 1
+Sucesso! Redirecionando para: 1
+[2025-11-29 12:36:45] [INFO] User:1 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-11-29 12:43:39] [INFO] User:1 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-11-29 12:45:03] [INFO] User:1 IP:Invalid IP Event:SUCCESS_AUTH - []
+2025-11-29 12:45:26 - Iniciando debug
+Usuário: 1
+POST recebido: Array
+(
+    [codigoServico] => 1
+)
+
+Código serviço: 1, Meu ID: 1, Tipo: Cliente
+Serviço encontrado: Array
+(
+    [prestador] => 1
+    [cliente] => 1
+    [prestador_usuario_id] => 1
+    [cliente_usuario_id] => 1
+    [prestador_nome] => João
+    [cliente_nome] => Giuliano
+)
+
+Tipo Cliente - Prestador usuario_id: 1
+Mensagens existentes: 1
+Sucesso! Redirecionando para: 1
+[2025-11-29 12:45:26] [INFO] User:1 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-11-29 12:46:51] [INFO] User:1 IP:Invalid IP Event:SUCCESS_AUTH - []
+2025-11-29 12:47:05 - Iniciando debug
+Usuário: 1
+POST recebido: Array
+(
+    [codigoServico] => 1
+)
+
+Código serviço: 1, Meu ID: 1, Tipo: Cliente
+Serviço encontrado: Array
+(
+    [prestador] => 1
+    [cliente] => 1
+    [prestador_usuario_id] => 1
+    [cliente_usuario_id] => 1
+    [prestador_nome] => João
+    [cliente_nome] => Giuliano
+)
+
+Tipo Cliente - Prestador usuario_id: 1
+Mensagens existentes: 1
+Sucesso! Redirecionando para: 1
+[2025-11-29 12:47:05] [INFO] User:1 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 12:07:48] [INFO] User:1 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 12:08:52] [INFO] User:1 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 12:08:59] [INFO] User:1 IP:Invalid IP Event:MESSAGE_SENT - {"recipient":2}
+[2025-12-01 12:09:51] [INFO] User:1 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 12:49:00] [INFO] User:1 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 14:08:50] [INFO] User:1 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 14:08:54] [INFO] User:1 IP:Invalid IP Event:MESSAGE_SENT - {"recipient":2}
+[2025-12-01 14:08:57] [INFO] User:1 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 14:09:37] [INFO] User:1 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 14:09:38] [INFO] User:1 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 14:12:24] [INFO] User:1 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 14:12:29] [INFO] User:1 IP:Invalid IP Event:MESSAGE_SENT - {"recipient":2}
+[2025-12-01 14:12:33] [INFO] User:1 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 14:12:47] [INFO] User:1 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 14:12:54] [INFO] User:1 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 14:13:04] [INFO] User:1 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 14:15:34] [INFO] User:2 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 14:15:52] [INFO] User:2 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 14:16:36] [INFO] User:1 IP:Invalid IP Event:SUCCESS_AUTH - []
+2025-12-01 14:17:08 - Iniciando debug
+Usuário: 1
+POST recebido: Array
+(
+    [codigoServico] => 2
+)
+
+Código serviço: 2, Meu ID: 1, Tipo: Cliente
+Serviço encontrado: Array
+(
+    [prestador] => 2
+    [cliente] => 1
+    [prestador_usuario_id] => 3
+    [cliente_usuario_id] => 1
+    [prestador_nome] => Bernardo
+    [cliente_nome] => Giuliano
+)
+
+Tipo Cliente - Prestador usuario_id: 3
+Mensagens existentes: 0
+Mensagem inicial criada
+Sucesso! Redirecionando para: 3
+[2025-12-01 14:17:09] [INFO] User:1 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 14:42:03] [INFO] User:1 IP:Invalid IP Event:SUCCESS_AUTH - []
+2025-12-01 14:43:50 - Iniciando debug
+Usuário: 1
+POST recebido: Array
+(
+    [codigoServico] => 1
+)
+
+Código serviço: 1, Meu ID: 1, Tipo: Cliente
+Serviço encontrado: Array
+(
+    [prestador] => 1
+    [cliente] => 1
+    [prestador_usuario_id] => 2
+    [cliente_usuario_id] => 1
+    [prestador_nome] => João
+    [cliente_nome] => Giuliano
+)
+
+Tipo Cliente - Prestador usuario_id: 2
+Mensagens existentes: 0
+Mensagem inicial criada
+Sucesso! Redirecionando para: 2
+[2025-12-01 14:43:50] [INFO] User:1 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 14:43:55] [INFO] User:1 IP:Invalid IP Event:MESSAGE_SENT - {"recipient":2}
+[2025-12-01 14:44:02] [INFO] User:1 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 14:44:06] [INFO] User:1 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 14:44:07] [INFO] User:1 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 14:44:08] [INFO] User:1 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 14:46:28] [INFO] User:1 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 14:47:47] [INFO] User:1 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 14:47:57] [INFO] User:1 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 14:48:54] [INFO] User:1 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 14:48:58] [INFO] User:1 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 14:49:02] [INFO] User:1 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 14:49:17] [INFO] User:1 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 14:49:18] [INFO] User:1 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 14:49:25] [INFO] User:1 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 14:49:29] [ERROR] User:1 IP:Invalid IP Event:UNAUTHORIZED_ACCESS - {"resource":"message_to_1"}
+[2025-12-01 14:53:49] [INFO] User:1 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 14:53:54] [ERROR] User:1 IP:Invalid IP Event:UNAUTHORIZED_ACCESS - {"resource":"message_to_1"}
+[2025-12-01 14:54:08] [INFO] User:1 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 14:54:18] [ERROR] User:1 IP:Invalid IP Event:UNAUTHORIZED_ACCESS - {"resource":"message_to_1"}
+[2025-12-01 15:02:38] [INFO] User:2 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 15:02:41] [INFO] User:2 IP:Invalid IP Event:MESSAGE_SENT - {"recipient":1}
+[2025-12-01 16:01:37] [INFO] User:2 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 16:02:43] [INFO] User:2 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 16:09:05] [INFO] User:2 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 16:09:06] [INFO] User:2 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 16:09:10] [INFO] User:2 IP:Invalid IP Event:MESSAGE_SENT - {"recipient":1}
+[2025-12-01 16:09:34] [INFO] User:2 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 16:09:37] [INFO] User:2 IP:Invalid IP Event:MESSAGE_SENT - {"recipient":1}
+[2025-12-01 16:09:44] [INFO] User:2 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 16:09:46] [INFO] User:2 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 16:09:47] [INFO] User:2 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 16:11:01] [INFO] User:1 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 16:11:08] [INFO] User:1 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 16:11:13] [INFO] User:1 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 16:12:09] [INFO] User:1 IP:Invalid IP Event:SUCCESS_AUTH - []
+2025-12-01 16:12:56 - Iniciando debug
+Usuário: 1
+POST recebido: Array
+(
+    [codigoServico] => 1
+)
+
+Código serviço: 1, Meu ID: 1, Tipo: Cliente
+Serviço encontrado: Array
+(
+    [prestador] => 1
+    [cliente] => 1
+    [prestador_usuario_id] => 2
+    [cliente_usuario_id] => 1
+    [prestador_nome] => João
+    [cliente_nome] => Giuliano
+)
+
+Tipo Cliente - Prestador usuario_id: 2
+Mensagens existentes: 0
+Mensagem inicial criada
+Sucesso! Redirecionando para: 2
+[2025-12-01 16:12:57] [INFO] User:1 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 16:13:07] [INFO] User:1 IP:Invalid IP Event:MESSAGE_SENT - {"recipient":2}
+[2025-12-01 16:13:30] [INFO] User:2 IP:Invalid IP Event:SUCCESS_AUTH - []
+2025-12-01 16:13:34 - Iniciando debug
+Usuário: 1
+POST recebido: Array
+(
+    [codigoServico] => 1
+)
+
+Código serviço: 1, Meu ID: 1, Tipo: Prestador
+Serviço encontrado: Array
+(
+    [prestador] => 1
+    [cliente] => 1
+    [prestador_usuario_id] => 2
+    [cliente_usuario_id] => 1
+    [prestador_nome] => João
+    [cliente_nome] => Giuliano
+)
+
+Tipo Prestador - Cliente usuario_id: 1
+Mensagens existentes: 2
+Sucesso! Redirecionando para: 1
+[2025-12-01 16:13:34] [INFO] User:2 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 16:13:37] [INFO] User:2 IP:Invalid IP Event:MESSAGE_SENT - {"recipient":1}
+[2025-12-01 16:13:43] [INFO] User:2 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 16:31:04] [INFO] User:2 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 16:31:09] [INFO] User:2 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 16:31:13] [INFO] User:2 IP:Invalid IP Event:MESSAGE_SENT - {"recipient":1}
+[2025-12-01 16:31:20] [INFO] User:2 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 16:31:31] [INFO] User:2 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 16:31:46] [INFO] User:1 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 16:31:49] [INFO] User:1 IP:Invalid IP Event:MESSAGE_SENT - {"recipient":2}
+[2025-12-01 16:31:55] [INFO] User:1 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 16:32:34] [INFO] User:1 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 16:32:37] [INFO] User:1 IP:Invalid IP Event:MESSAGE_SENT - {"recipient":2}
+[2025-12-01 16:32:50] [INFO] User:2 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 16:32:53] [INFO] User:2 IP:Invalid IP Event:MESSAGE_SENT - {"recipient":1}
+[2025-12-01 16:32:56] [INFO] User:2 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 16:36:01] [INFO] User:2 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 16:36:04] [INFO] User:2 IP:Invalid IP Event:MESSAGE_SENT - {"recipient":1}
+[2025-12-01 16:36:12] [INFO] User:2 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 16:36:51] [INFO] User:2 IP:Invalid IP Event:SUCCESS_AUTH - []
+[2025-12-01 16:36:54] [INFO] User:2 IP:Invalid IP Event:MESSAGE_SENT - {"recipient":1}
+[2025-12-01 16:36:55] [INFO] User:2 IP:Invalid IP Event:SUCCESS_AUTH - []

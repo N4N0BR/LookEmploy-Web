@@ -92,7 +92,12 @@ try {
         try {
             $msg['mensagem'] = $encryption->decrypt($msg['mensagem']);
         } catch (Exception $e) {
-            $msg['mensagem'] = '[Mensagem criptografada - erro ao descriptografar]';
+            $raw = $msg['mensagem'];
+            if (preg_match('/^[A-Za-z0-9+\/=]+$/', $raw)) {
+                $msg['mensagem'] = '[Mensagem criptografada - erro ao descriptografar]';
+            } else {
+                $msg['mensagem'] = $raw;
+            }
         }
     }
     

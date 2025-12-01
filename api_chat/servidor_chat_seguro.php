@@ -41,6 +41,14 @@ if (class_exists(Dotenv::class)) {
     }
 }
 
+$aes = $_ENV['AES_KEY'] ?? $_SERVER['AES_KEY'] ?? getenv('AES_KEY');
+if (!$aes) {
+    $def = $_ENV['ENCRYPTION_KEY'] ?? $_SERVER['ENCRYPTION_KEY'] ?? getenv('ENCRYPTION_KEY') ?? 'lookemploy_default_aes_key_32_chars_min_secure!!';
+    $_ENV['AES_KEY'] = $def;
+    $_SERVER['AES_KEY'] = $def;
+    putenv("AES_KEY=$def");
+}
+
 echo "==========================================\n";
 echo "  SERVIDOR DE CHAT SEGURO - LOOKEMPLOY\n";
 echo "==========================================\n\n";

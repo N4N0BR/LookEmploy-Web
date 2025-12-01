@@ -14,7 +14,10 @@
   $numero = $_POST['numero'] ?? '';
   $complemento = $_POST['complemento'] ?? '';
   $sexo = $_POST['sexo'] ?? '';
-  if($tipo == "Prestador") { $servico = $_POST['servico'] ?? ''; }
+  if($tipo == "Prestador") { 
+    $servico = $_POST['servico'] ?? ''; 
+    $descricao = $_POST['descricao'] ?? '';
+  }
 
   function test_input($data) {
     return htmlspecialchars(stripslashes(trim($data)));
@@ -32,6 +35,7 @@
   $numero = test_input($numero);
   $complemento = test_input($complemento);
   $sexo = test_input($sexo);
+  if(isset($descricao)) { $descricao = test_input($descricao); }
 
   $erros = [];
   if (empty($tipo)) $erros[] = 'tipo';
@@ -46,6 +50,7 @@
   if (empty($numero)) $erros[] = 'numero';
   if (empty($sexo)) $erros[] = 'sexo';
   if ($tipo === 'Prestador' && (empty($servico))) $erros[] = 'servico';
+  if ($tipo === 'Prestador' && (empty($descricao))) $erros[] = 'descricao';
 
   if (!empty($erros)) {
     echo 'Erro: dados incompletos (' . implode(', ', $erros) . ').';
@@ -63,26 +68,58 @@
   $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
 
   $sql_check = "SELECT email FROM {$tipo} WHERE email = ? LIMIT 1";
-  $stmt = $conexao->prepare($sql_check);
+  if (!$pdo) {
+    echo "Erro de conexão com o banco.";
+    exit;
+  }
+  $stmt = $pdo->prepare($sql_check);
   if ($stmt === false) {
     echo"Erro no servidor.";
     exit;
   }
-  $stmt->bind_param('s', $email);
-  if (!$stmt->execute()) {
-    echo'Erro ao verificar email: ' . $stmt->error;
-    $stmt->close();
-    $conexao->close();
+  if (!$stmt->execute([$email])) {
+    echo'Erro ao verificar email';
+    $stmt = null;
+    $pdo = null;
     exit;
   }
-  $result = $stmt->get_result();
-  if ($result && $result->num_rows > 0) {
-  echo "Uma conta com este e-mail já existe. Utilize outro e-mail.";
-    $stmt->close();
-    $conexao->close();
+  $result = $stmt->fetch(PDO::FETCH_ASSOC);
+  if ($result) {
+    echo "Uma conta com este e-mail já existe. Utilize outro e-mail.";
+    $stmt = null;
+    $pdo = null;
     exit;
   }
-  $stmt->close();
+  $stmt = null;
+  $other = $tipo === 'Prestador' ? 'Cliente' : 'Prestador';
+  $sql_other = "SELECT nome, sobrenome, email, telefone, dataNascimento, bairro, logradouro, numero, complemento, sexo, descricao FROM {$other} WHERE email = ? LIMIT 1";
+  $stmt = $pdo->prepare($sql_other);
+  if ($stmt) {
+    if ($stmt->execute([$email])) {
+      $rowOther = $stmt->fetch(PDO::FETCH_ASSOC);
+      if ($rowOther) {
+        $telOther = preg_replace('/\D+/', '', $rowOther['telefone'] ?? '');
+        $fieldsEqual = (
+          ($rowOther['nome'] ?? '') === $nome &&
+          ($rowOther['sobrenome'] ?? '') === $sobrenome &&
+          $telOther === $telefone &&
+          ($rowOther['dataNascimento'] ?? '') === $data_nascimento &&
+          ($rowOther['bairro'] ?? '') === $bairro &&
+          ($rowOther['logradouro'] ?? '') === $logradouro &&
+          ($rowOther['numero'] ?? '') === $numero &&
+          (string)($rowOther['complemento'] ?? '') === (string)$complemento &&
+          ($rowOther['sexo'] ?? '') === $sexo
+        );
+        if (!$fieldsEqual) {
+          echo 'E-mail já usado em outra conta com dados diferentes. Para usar o mesmo e-mail, mantenha os dados iguais (exceto serviço e descrição).';
+          $stmt = null;
+          $pdo = null;
+          exit;
+        }
+      }
+    }
+    $stmt = null;
+  }
 
   switch($sexo) {
     case "Masculino":
@@ -98,63 +135,61 @@
   switch ($tipo) {
     case 'Prestador':
       if ($complemento === '') {
-        $sql_insert = "INSERT INTO {$tipo} (nome, sobrenome, email, senha, telefone, dataNascimento, bairro, logradouro, numero, sexo, tipoServico, caminhoImagemPerfil) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        $stmt = $conexao->prepare($sql_insert);
+        $sql_insert = "INSERT INTO {$tipo} (nome, sobrenome, email, senha, telefone, dataNascimento, bairro, logradouro, numero, sexo, tipoServico, descricao, caminhoImagemPerfil) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $stmt = $pdo->prepare($sql_insert);
         if ($stmt === false) {
           echo'Erro no servidor (prepare insert).';
-          $conexao->close();
+          
           exit;
         }
-        $stmt->bind_param('ssssssssssss', $nome, $sobrenome, $email, $senhaHash, $telefone, $data_nascimento, $bairro, $logradouro, $numero, $sexo, $servico, $caminhoImagemPerfil);
+        $ok = $stmt->execute([$nome, $sobrenome, $email, $senhaHash, $telefone, $data_nascimento, $bairro, $logradouro, $numero, $sexo, $servico, $descricao, $caminhoImagemPerfil]);
       } else {
-        $sql_insert = "INSERT INTO {$tipo} (nome, sobrenome, email, senha, telefone, dataNascimento, bairro, logradouro, numero, complemento, sexo, tipoServico, caminhoImagemPerfil) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        $stmt = $conexao->prepare($sql_insert);
+        $sql_insert = "INSERT INTO {$tipo} (nome, sobrenome, email, senha, telefone, dataNascimento, bairro, logradouro, numero, complemento, sexo, tipoServico, descricao, caminhoImagemPerfil) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $stmt = $pdo->prepare($sql_insert);
         if ($stmt === false) {
           echo'Erro no servidor (prepare insert).';
-          $conexao->close();
+          
           exit;
         }
-        $stmt->bind_param('sssssssssssss', $nome, $sobrenome, $email, $senhaHash, $telefone, $data_nascimento, $bairro, $logradouro, $numero, $complemento, $sexo, $servico, $caminhoImagemPerfil);
+        $ok = $stmt->execute([$nome, $sobrenome, $email, $senhaHash, $telefone, $data_nascimento, $bairro, $logradouro, $numero, $complemento, $sexo, $servico, $descricao, $caminhoImagemPerfil]);
       }
       break;
     default:
       if ($complemento === '') {
         $sql_insert = "INSERT INTO {$tipo} (nome, sobrenome, email, senha, telefone, dataNascimento, bairro, logradouro, numero, sexo, caminhoImagemPerfil) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        $stmt = $conexao->prepare($sql_insert);
+        $stmt = $pdo->prepare($sql_insert);
         if ($stmt === false) {
           echo'Erro no servidor (prepare insert).';
-          $conexao->close();
+          
           exit;
         }
-        $stmt->bind_param('sssssssssss', $nome, $sobrenome, $email, $senhaHash, $telefone, $data_nascimento, $bairro, $logradouro, $numero, $sexo, $caminhoImagemPerfil);
+        $ok = $stmt->execute([$nome, $sobrenome, $email, $senhaHash, $telefone, $data_nascimento, $bairro, $logradouro, $numero, $sexo, $caminhoImagemPerfil]);
       } else {
         $sql_insert = "INSERT INTO {$tipo} (nome, sobrenome, email, senha, telefone, dataNascimento, bairro, logradouro, numero, complemento, sexo, caminhoImagemPerfil) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        $stmt = $conexao->prepare($sql_insert);
+        $stmt = $pdo->prepare($sql_insert);
         if ($stmt === false) {
           echo'Erro no servidor (prepare insert).';
-          $conexao->close();
+          
           exit;
         }
-        $stmt->bind_param('ssssssssssss', $nome, $sobrenome, $email, $senhaHash, $telefone, $data_nascimento, $bairro, $logradouro, $numero, $complemento, $sexo, $caminhoImagemPerfil);
+        $ok = $stmt->execute([$nome, $sobrenome, $email, $senhaHash, $telefone, $data_nascimento, $bairro, $logradouro, $numero, $complemento, $sexo, $caminhoImagemPerfil]);
       }
       break;
   }
-  if ($stmt->execute()) {
-      $stmt->close();
-      $sql = "SELECT * FROM $tipo WHERE email = ?";
-      $stmt = $conexao->prepare($sql);
+  if ($ok ?? false) {
+      $stmt = null;
+      $sql = "SELECT * FROM {$tipo} WHERE email = ?";
+      $stmt = $pdo->prepare($sql);
 
     if (!$stmt) {
-        echo "Erro ao logar" . $conexao->error;
+        echo "Erro ao logar";
         exit;
     }
 
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
-    $resultado = $stmt->get_result();
-
-    if ($resultado && $resultado->num_rows > 0) {
-        $usuario = $resultado->fetch_assoc();
+    $stmt->execute([$email]);
+    $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if ($usuario) {
 
             $_SESSION['tipo'] = $tipo;
             $_SESSION['usuario'] = $usuario['ID'];
@@ -176,15 +211,13 @@
             $_SESSION['caminhoImagemPerfil'] = $usuario['caminhoImagemPerfil'];
             
             echo "EXITO";            
-            $stmt->close();
-            $conexao->close();
+            $stmt = null;
+            $pdo = null;
 
       } else {
         echo'Erro ao cadastrar! Tente novamente.';
-        error_log('DB insert error: ' . $stmt->error);
-
-        $stmt->close();
-        $conexao->close();
+        $stmt = null;
+        $pdo = null;
         exit;
       }
   }

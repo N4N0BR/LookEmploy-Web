@@ -23,6 +23,7 @@ var numeroErro = document.getElementById('numeroInvalido');
 var complementoErro = document.getElementById('complementoInvalido');
 var sexoErro = document.getElementById('sexoInvalido');
 var servicoErro = document.getElementById('servicoInvalido');
+var descricaoErro = document.getElementById('descricaoInvalida');
 var msgSucesso = document.getElementById('msgSucesso');
 
 const padraoEmail = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -35,19 +36,8 @@ var campoExtra = document.getElementById('campoExtra');
 if (selectTipo && campoExtra) {
   function renderCampoExtra() {
     if (selectTipo.value === 'Prestador') {
-      campoExtra.innerHTML = 
-        '<p id="esco">Com qual serviço você trabalhará?</p>' +
-        '<label for="pedreiro">Pedreiro</label>' +
-        '<input type="radio" id="pedreiro" name="servico" value="Pedreiro"/>' +
-        '<label for="marceneiro">Marceneiro</label>' +
-        '<input type="radio" id="marceneiro" name="servico" value="Marceneiro"/>' +
-        '<label for="encanador">Encanador</label>' +
-        '<input type="radio" id="encanador" name="servico" value="Encanador"/>' +
-        '<label for="eletricista">Eletricista</label>' +
-        '<input type="radio" id="eletricista" name="servico" value="Eletricista"/>';
       campoExtra.style.display = 'block';
     } else {
-      campoExtra.innerHTML = '';
       campoExtra.style.display = 'none';
     }
   }
@@ -242,6 +232,22 @@ function validarServico() {
   return servicoInput.value;
 }
 
+function validarDescricaoPrestador() {
+  var descricaoInput = document.getElementById('descricaoPrestador');
+  if (!descricaoInput) return false;
+  var texto = descricaoInput.value.trim();
+  if (texto.length === 0) {
+    descricaoErro.textContent = "Preencha a descrição*";
+    return false;
+  }
+  if (texto.length < 20) {
+    descricaoErro.textContent = "A descrição deve ter pelo menos 20 caracteres*";
+    return false;
+  }
+  descricaoErro.textContent = "";
+  return texto;
+}
+
 // ---------- ENVIO DO FORMULÁRIO ----------
 
 //form para clientes
@@ -283,7 +289,7 @@ async function enviarFormulario(tipo, email, senha, nome, sobrenome, telefone, d
 }
 
 //form para prestadores
-async function enviarFormularioPrestador(tipo, email, senha, nome, sobrenome, telefone, dataNascimento, bairro, logradouro, numero, complemento, sexo, servico) {
+async function enviarFormularioPrestador(tipo, email, senha, nome, sobrenome, telefone, dataNascimento, bairro, logradouro, numero, complemento, sexo, servico, descricao) {
   const dados = new FormData();
   dados.append("tipo", tipo);
   dados.append("email", email);
@@ -298,6 +304,7 @@ async function enviarFormularioPrestador(tipo, email, senha, nome, sobrenome, te
   dados.append("complemento", complemento);
   dados.append("sexo", sexo);
   dados.append("servico", servico);
+  dados.append("descricao", descricao);
 
   try {
     msgSucesso.innerHTML = "<p style='color:lightblue'>Enviando...</p>";
@@ -340,7 +347,11 @@ formulario.addEventListener('submit', function(event) {
   
   var sexo = validarSexo();
   var servico;
-  if(tipo == "Prestador") { servico = validarServico(); }
+  var descricao;
+  if(tipo == "Prestador") { 
+    servico = validarServico();
+    descricao = validarDescricaoPrestador();
+  }
   var emailValido = validarEmail(email);
   var senhaValida = validarSenha(senha);
   var nomeValido = validarNome(nome);
@@ -365,8 +376,8 @@ formulario.addEventListener('submit', function(event) {
     complementoValido &&
     sexo
   ) {
-    if(tipo == "Prestador" && servico) {
-      enviarFormularioPrestador(tipo, email, senha, nome, sobrenome, telefone, data, bairro, logradouro, numero, complemento, sexo, servico);
+    if(tipo == "Prestador" && servico && descricao) {
+      enviarFormularioPrestador(tipo, email, senha, nome, sobrenome, telefone, data, bairro, logradouro, numero, complemento, sexo, servico, descricao);
     } else {
       enviarFormulario(tipo, email, senha, nome, sobrenome, telefone, data, bairro, logradouro, numero, complemento, sexo);
     }

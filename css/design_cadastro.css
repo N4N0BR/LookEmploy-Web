@@ -103,8 +103,24 @@ header img:hover {
    border-radius: 10px;
    
 }
+.formulario textarea {
+   width: 100%;
+   padding: 8px 16px;
+   text-align: left;
+   font-size: 100%;
+   color: #ccc;
+   background: #303c4e;
+   border: 1px solid #ffffff;
+   border-radius: 10px;
+   resize: vertical;
+}
 .formulario input:focus {
     border-color: #5ce1e6;
+   outline: none;
+   box-shadow: 0 0 5px #5ce1e6;
+}
+.formulario textarea:focus {
+   border-color: #5ce1e6;
    outline: none;
    box-shadow: 0 0 5px #5ce1e6;
 }
@@ -147,7 +163,8 @@ header img:hover {
    background: #00cccc;
 }
 
-.formulario input::placeholder {
+.formulario input::placeholder,
+.formulario textarea::placeholder {
    color: #CCC;
 }
 #esco{

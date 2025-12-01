@@ -11,7 +11,10 @@ class MessageEncryption
 
     public function __construct()
     {
-        $key = getenv('ENCRYPTION_KEY') ?: 'sua_chave_de_criptografia_aqui_min32chars!!';
+        $key = $_ENV['AES_KEY'] ?? $_SERVER['AES_KEY'] ?? getenv('AES_KEY');
+        if (!$key) {
+            $key = getenv('ENCRYPTION_KEY') ?: 'sua_chave_de_criptografia_aqui_min32chars!!';
+        }
         $this->encryptionKey = substr(hash('sha256', $key, true), 0, 32);
     }
 

@@ -12,18 +12,24 @@ if (!isset($_SESSION['usuario'])) {
 $tipo = $_SESSION['tipo'];
 $ID = $_SESSION['usuario'];
 
-$sql = "DELETE FROM $tipo WHERE ID = ?";
-$stmt = $conexao->prepare($sql);
+$allowed_tables = ['Cliente', 'Prestador'];
+if (!in_array($tipo, $allowed_tables, true)) {
+    echo "<script>alert('Tipo de conta inválido.'); window.location.replace('../login.html');</script>";
+    exit;
+}
+
+$sql = "DELETE FROM {$tipo} WHERE ID = ?";
+$stmt = $pdo->prepare($sql);
 
 if (!$stmt) {
     echo "<script>alert('Erro ao preparar comando SQL!');</script>";
     exit;
 }
 
-$stmt->bind_param("i", $ID);
+$ok = $stmt->execute([$ID]);
 
 // Execução
-if ($stmt->execute()) {
+if ($ok) {
     echo "<script>
             alert('Conta deletada.');
             window.location.replace('../login.html');
@@ -37,6 +43,6 @@ if ($stmt->execute()) {
     exit;
 }
 
-$stmt->close();
-$conexao->close();
+$stmt = null;
+$pdo = null;
 ?>

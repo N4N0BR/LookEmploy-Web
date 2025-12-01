@@ -56,22 +56,22 @@ if (isset($_FILES['imagemPerfil']) && $_FILES['imagemPerfil']['error'] === 0) {
 
 if ($tipo === "Prestador") {
     $sql = "UPDATE Prestador SET nome=?, sobrenome=?, telefone=?, bairro=?, logradouro=?, numero=?, complemento=?, descricao=?, tipoServico=?, caminhoImagemPerfil=? WHERE ID=?";
-    $stmt = $conexao->prepare($sql);
-    $stmt->bind_param("ssssssssssi",
+    $stmt = $pdo->prepare($sql);
+    $ok = $stmt->execute([
         $nome, $sobrenome, $telefone, $bairro, $logradouro, $numero,
         $complemento, $descricao, $servico, $caminhoImagemPerfil, $idUsuario
-    );
+    ]);
 
 } else {
     $sql = "UPDATE Cliente SET nome=?, sobrenome=?, telefone=?, bairro=?, logradouro=?, numero=?, complemento=?, descricao=?, caminhoImagemPerfil=? WHERE ID=?";
-    $stmt = $conexao->prepare($sql);
-    $stmt->bind_param("sssssssssi",
+    $stmt = $pdo->prepare($sql);
+    $ok = $stmt->execute([
         $nome, $sobrenome, $telefone, $bairro, $logradouro, $numero,
         $complemento, $descricao, $caminhoImagemPerfil, $idUsuario
-    );
+    ]);
 }
 
-if ($stmt->execute()) {
+if ($ok) {
 
     $_SESSION['nome'] = $nome;
     $_SESSION['sobrenome'] = $sobrenome;
@@ -89,8 +89,8 @@ if ($stmt->execute()) {
 
     echo "Dados atualizados com sucesso!";
 } else {
-    echo "Erro ao atualizar: " . $stmt->error;
+    echo "Erro ao atualizar.";
 }
 
-$stmt->close();
-$conexao->close();
+$stmt = null;
+$pdo = null;

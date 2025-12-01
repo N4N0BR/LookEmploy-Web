@@ -11,6 +11,7 @@ let ws = null;
 let jwtToken = null;
 let reconnectAttempts = 0;
 const MAX_RECONNECT_ATTEMPTS = 5;
+let lastDateSeparator = null;
 
 /* ELEMENTOS DO DOM */
 const chat = document.getElementById("chatMensagens");
@@ -100,6 +101,11 @@ function handleWebSocketMessage(evt) {
             case 'auth_success':
                 wsReady = true;
                 console.log("Autenticado com sucesso:", data.usuario);
+                if (data && data.usuario && typeof data.usuario.id === 'number') {
+                    CURRENT_USER.id = data.usuario.id;
+                    CURRENT_USER.tipo = data.usuario.tipo || CURRENT_USER.tipo;
+                    CURRENT_USER.nome = data.usuario.nome || CURRENT_USER.nome;
+                }
                 showNotification("Conectado ao chat", "success");
                 loadContacts();
                 break;
@@ -343,6 +349,7 @@ async function carregarHistorico(contatoId) {
         }
         
         chat.innerHTML = "";
+        lastDateSeparator = null;
         
         if (data.length > 0) {
             data.forEach(msg => {
@@ -418,7 +425,6 @@ function showNotification(message, type = "info") {
 
 function adicionarMensagem(info) {
     const horaFmt = formatHora(info.hora);
-    
     inserirSeparadorSeNecessario(info.hora);
     
     const html = `
@@ -434,14 +440,13 @@ function adicionarMensagem(info) {
 
 function inserirSeparadorSeNecessario(dataISO) {
     const label = formatarDataMensagem(dataISO);
-    const ultimo = chat.querySelector(".separador-data:last-of-type");
-    
-    if (!ultimo || ultimo.dataset.data !== label) {
-        chat.insertAdjacentHTML(
-            "beforeend",
-            `<div class="separador-data" data-data="${label}"><span>${label}</span></div>`
-        );
-    }
+    const existing = chat.querySelector(`.separador-data[data-data="${label}"]`);
+    if (lastDateSeparator === label || existing) return;
+    chat.insertAdjacentHTML(
+        "beforeend",
+        `<div class="separador-data" data-data="${label}"><span>${label}</span></div>`
+    );
+    lastDateSeparator = label;
 }
 
 function formatarDataMensagem(data) {
@@ -569,8 +574,5 @@ inputMensagem.addEventListener("keydown", e => {
    INICIALIZAÇÃO
 =========================================================== */
 
-// Carregar contatos imediatamente (funciona mesmo sem WebSocket)
-loadContacts();
-
-// Conectar WebSocket para status online, digitação, recibos de leitura
+// Conectar WebSocket; contatos serão carregados após auth_success
 connectWebSocket();

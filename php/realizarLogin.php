@@ -1,36 +1,46 @@
 <?php
   include_once 'conexaoMySQL.php';
 
-  $tipo = $_POST['tipo'] ?? '';
-  $senha = $_POST['senha'] ?? '';
-  $email = $_POST['email'] ?? '';
+$tipo = $_POST['tipo'] ?? '';
+$senha = $_POST['senha'] ?? '';
+$email = $_POST['email'] ?? '';
 
-  // Validação básica
-  if ($senha != '' && $email != '') {
+// Validação básica
+$allowed_tables = ['Cliente', 'Prestador'];
+if (!in_array($tipo, $allowed_tables, true)) {
+    echo "Tipo de conta inválido.";
+    exit;
+}
+
+if ($senha != '' && $email != '') {
     
     //Comando de busca do email
-    $sql = "SELECT * FROM $tipo WHERE email = ?";
-    $stmt = $conexao->prepare($sql);
+    $sql = "SELECT * FROM {$tipo} WHERE email = ?";
+    $stmt = $pdo->prepare($sql);
 
-    if (!$stmt) {//EM CASO DE ERRO NO BANCO DE DADOS
-        echo "Erro ao preparar o SQL: " . $conexao->error;
+    if (!$stmt) {
+        echo "Erro ao preparar o SQL";
         exit;
     }
 
-    // Associa o parâmetro (s = string) e executa a operação
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
+    $stmt->execute([$email]);
+    $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    //pega o resultado
-    $resultado = $stmt->get_result();
-
-    if ($resultado && $resultado->num_rows > 0) {
-        $usuario = $resultado->fetch_assoc();
+    if ($usuario) {
 
         // Verifica a senha (criptografada)
-        if (password_verify($senha, $usuario['senha']) == true) {//SENHA CORRETA
-            //pode iniciar uma sessão contendo as informações do usuario. Por exemplo:
+        if (password_verify($senha, $usuario['senha']) == true) {
+            $isSecure = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
+            session_set_cookie_params([
+                'lifetime' => 0,
+                'path' => '/',
+                'domain' => '',
+                'secure' => $isSecure,
+                'httponly' => true,
+                'samesite' => 'Lax'
+            ]);
             session_start();
+            session_regenerate_id(true);
             $_SESSION['tipo'] = $tipo;
             $_SESSION['usuario'] = $usuario['ID'];
             $_SESSION['nome'] = $usuario['nome'];
@@ -61,8 +71,8 @@
         echo "Usuário não encontrado.";
     }
 
-    $stmt->close();
-    $conexao->close();
+    $stmt = null;
+    $pdo = null;
   }
   else {
     echo("Erro: dados incompletos.");

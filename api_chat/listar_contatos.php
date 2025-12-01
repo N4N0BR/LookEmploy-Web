@@ -1,8 +1,9 @@
 <?php
 header('Content-Type: application/json; charset=utf-8');
-error_reporting(0);
+error_reporting(E_ALL); // Mantendo o debug ativado
 
 session_start();
+use Api\Security\MessageEncryption;
 
 // Compatibilidade de chaves de sessão
 $rawSessionId = isset($_SESSION['usuario_id']) ? (int)$_SESSION['usuario_id'] : (isset($_SESSION['usuario']) ? (int)$_SESSION['usuario'] : 0);
@@ -21,22 +22,40 @@ try {
 
     // Mapear ID da sessão (Cliente.ID/Prestador.ID) para usuarios.id
     $usuarioId = 0;
+    $tipoAtual = '';
     if (strcasecmp($tipoSessao, 'Cliente') === 0) {
         $stmtMap = $pdo->prepare("SELECT usuario_id FROM Cliente WHERE ID = ?");
         $stmtMap->execute([$rawSessionId]);
         $usuarioId = (int)$stmtMap->fetchColumn();
         $tipoAtual = 'cliente';
+        if (!$usuarioId) {
+            // Fallback: se não encontrou em Cliente, assume que $_SESSION['usuario'] já é o usuario.id
+            $usuarioId = $rawSessionId;
+            $tipoAtual = 'cliente'; // Mantém o tipo para a lógica SQL
+        }
     } else if (strcasecmp($tipoSessao, 'Prestador') === 0) {
         $stmtMap = $pdo->prepare("SELECT usuario_id FROM Prestador WHERE ID = ?");
         $stmtMap->execute([$rawSessionId]);
         $usuarioId = (int)$stmtMap->fetchColumn();
         $tipoAtual = 'prestador';
+        if (!$usuarioId) {
+            // Fallback: se não encontrou em Prestador, assume que $_SESSION['usuario'] já é o usuario.id
+            $usuarioId = $rawSessionId;
+            $tipoAtual = 'prestador'; // Mantém o tipo para a lógica SQL
+        }
     } else {
         // fallback: tentar via usuarios diretamente
         $stmtTipo = $pdo->prepare("SELECT tipo FROM usuarios WHERE id = ?");
         $stmtTipo->execute([$rawSessionId]);
         $tipoAtual = $stmtTipo->fetchColumn() ?: '';
         $usuarioId = $rawSessionId;
+    }
+    
+    // Se o tipo não foi definido, mas o ID sim, tenta buscar o tipo
+    if (!$tipoAtual && $usuarioId) {
+        $stmtTipo = $pdo->prepare("SELECT tipo FROM usuarios WHERE id = ?");
+        $stmtTipo->execute([$usuarioId]);
+        $tipoAtual = $stmtTipo->fetchColumn() ?: '';
     }
 
     $hasUsuarioId = (bool)$usuarioId;
@@ -70,6 +89,7 @@ try {
             JOIN usuarios u ON u.id = p.usuario_id
             WHERE " . ($hasUsuarioId ? "c.usuario_id = :usuario_id" : "c.ID = :raw_id") . "
               AND u.id != :usuario_id
+            GROUP BY u.id, u.nome, u.online
             ORDER BY (ultima_data IS NULL), ultima_data DESC
         ";
         if ($contratoStatus) {
@@ -78,6 +98,7 @@ try {
             $params = $hasUsuarioId ? ['usuario_id' => $usuarioId, 'contrato' => $contratoStatus] : ['raw_id' => $rawSessionId, 'usuario_id' => $usuarioId, 'contrato' => $contratoStatus];
             $stmt->execute($params);
         } else {
+            // CORREÇÃO APLICADA AQUI
             $sql = str_replace('ORDER BY (ultima_data IS NULL), ultima_data DESC', 'AND s.contrato IN (:s1,:s2,:s3,:s4,:s5,:s6) ORDER BY (ultima_data IS NULL), ultima_data DESC', $baseSql);
             $stmt = $pdo->prepare($sql);
             $params = ['usuario_id' => $usuarioId, 's1' => $defaultStatuses[0], 's2' => $defaultStatuses[1], 's3' => $defaultStatuses[2], 's4' => $defaultStatuses[3], 's5' => $defaultStatuses[4], 's6' => $defaultStatuses[5]];
@@ -113,6 +134,7 @@ try {
             JOIN usuarios u ON u.id = c.usuario_id
             WHERE " . ($hasUsuarioId ? "p.usuario_id = :usuario_id" : "p.ID = :raw_id") . "
               AND u.id != :usuario_id
+            GROUP BY u.id, u.nome, u.online
             ORDER BY (ultima_data IS NULL), ultima_data DESC
         ";
         if ($contratoStatus) {
@@ -121,6 +143,7 @@ try {
             $params = $hasUsuarioId ? ['usuario_id' => $usuarioId, 'contrato' => $contratoStatus] : ['raw_id' => $rawSessionId, 'usuario_id' => $usuarioId, 'contrato' => $contratoStatus];
             $stmt->execute($params);
         } else {
+            // CORREÇÃO APLICADA AQUI
             $sql = str_replace('ORDER BY (ultima_data IS NULL), ultima_data DESC', 'AND s.contrato IN (:s1,:s2,:s3,:s4,:s5,:s6) ORDER BY (ultima_data IS NULL), ultima_data DESC', $baseSql);
             $stmt = $pdo->prepare($sql);
             $params = ['usuario_id' => $usuarioId, 's1' => $defaultStatuses[0], 's2' => $defaultStatuses[1], 's3' => $defaultStatuses[2], 's4' => $defaultStatuses[3], 's5' => $defaultStatuses[4], 's6' => $defaultStatuses[5]];
@@ -134,46 +157,58 @@ try {
     
     $contatos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+    $enc = new MessageEncryption();
+    foreach ($contatos as &$c) {
+        if (!empty($c['ultima_mensagem'])) {
+            try { $c['ultima_mensagem'] = $enc->decrypt($c['ultima_mensagem']); } catch (\Exception $e) { $c['ultima_mensagem'] = '[Mensagem criptografada]'; }
+        }
+    }
+
     if ($openId) {
-        $exists = false;
-        foreach ($contatos as $c) {
-            if ((int)$c['id'] === (int)$openId) { $exists = true; break; }
-        }
-        if (!$exists && (int)$openId !== (int)$usuarioId) {
-            $stU = $pdo->prepare('SELECT id, nome, online FROM usuarios WHERE id = ?');
-            $stU->execute([$openId]);
-            $u = $stU->fetch(PDO::FETCH_ASSOC);
-            if ($u) { $contatos[] = $u; }
-        }
+	        $exists = false;
+	        foreach ($contatos as $c) {
+	            if ((int)$c['id'] === (int)$openId) { $exists = true; break; }
+	        }
+	        // Se o contato 'open' não está na lista, adiciona-o (apenas se for um usuário válido e diferente do atual)
+	        if (!$exists && (int)$openId !== (int)$usuarioId && (int)$openId > 0) {
+	            $stU = $pdo->prepare('SELECT id, nome, online FROM usuarios WHERE id = ?');
+	            $stU->execute([$openId]);
+	            $u = $stU->fetch(PDO::FETCH_ASSOC);
+	            if ($u) { $contatos[] = $u; }
+	        }
     }
 
-    // Fallback: incluir contatos com histórico de mensagens mesmo sem vínculo em Servico
-    if (count($contatos) === 0) {
-        // Determinar usuarios.id do atual
-        $usuarioAtualId = 0;
-        if ($tipoAtual === 'cliente' && $hasUsuarioId) { $usuarioAtualId = (int)$usuarioId; }
-        if ($tipoAtual === 'prestador' && $hasUsuarioId) { $usuarioAtualId = (int)$usuarioId; }
-        if (!$usuarioAtualId) { $usuarioAtualId = (int)$rawSessionId; }
+	    // Fallback: incluir contatos com histórico de mensagens mesmo sem vínculo em Servico
+	    // Determinar usuarios.id do atual
+	    $usuarioAtualId = 0;
+	    if ($tipoAtual === 'cliente' && $hasUsuarioId) { $usuarioAtualId = (int)$usuarioId; }
+	    if ($tipoAtual === 'prestador' && $hasUsuarioId) { $usuarioAtualId = (int)$usuarioId; }
+	    if (!$usuarioAtualId) { $usuarioAtualId = (int)$rawSessionId; }
 
-        $sqlMsg = "SELECT DISTINCT CASE WHEN m.remetente_id = ? THEN m.destinatario_id ELSE m.remetente_id END AS id FROM mensagens m WHERE m.remetente_id = ? OR m.destinatario_id = ?";
-        $stMsg = $pdo->prepare($sqlMsg);
-        $stMsg->execute([$usuarioAtualId, $usuarioAtualId, $usuarioAtualId]);
-        $ids = $stMsg->fetchAll(PDO::FETCH_COLUMN, 0);
+	    $sqlMsg = "SELECT DISTINCT CASE WHEN m.remetente_id = ? THEN m.destinatario_id ELSE m.remetente_id END AS id FROM mensagens m WHERE m.remetente_id = ? OR m.destinatario_id = ?";
+	    $stMsg = $pdo->prepare($sqlMsg);
+	    $stMsg->execute([$usuarioAtualId, $usuarioAtualId, $usuarioAtualId]);
+	    $ids = $stMsg->fetchAll(PDO::FETCH_COLUMN, 0);
 
-        if ($ids && count($ids) > 0) {
-            $place = implode(',', array_fill(0, count($ids), '?'));
-            $stUsers = $pdo->prepare("SELECT id, nome, online FROM usuarios WHERE id IN ($place) AND id <> ?");
-            $stUsers->execute([...$ids, $usuarioAtualId]);
-            $rows = $stUsers->fetchAll(PDO::FETCH_ASSOC);
-            foreach ($rows as $row) {
-                $contatos[] = $row;
-            }
-        }
-    }
+	    if ($ids && count($ids) > 0) {
+	        $place = implode(',', array_fill(0, count($ids), '?'));
+	        $stUsers = $pdo->prepare("SELECT id, nome, online FROM usuarios WHERE id IN ($place) AND id <> ?");
+	        $stUsers->execute([...$ids, $usuarioAtualId]);
+	        $rows = $stUsers->fetchAll(PDO::FETCH_ASSOC);
+	        
+	        // Adicionar contatos do histórico que ainda não estão na lista
+	        $existingIds = array_column($contatos, 'id');
+	        foreach ($rows as $row) {
+	            if (!in_array($row['id'], $existingIds)) {
+	                $contatos[] = $row;
+	            }
+	        }
+	    }
     
     echo json_encode($contatos);
     
 } catch (Exception $e) {
+    // Retorna a mensagem de erro real para o console
     error_log("Erro ao listar contatos: " . $e->getMessage());
-    echo json_encode(['error' => 'Erro ao carregar contatos']);
+    echo json_encode(['error' => 'Erro ao carregar contatos: ' . $e->getMessage()]);
 }

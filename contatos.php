@@ -65,8 +65,8 @@ if (!isset($_SESSION['usuario'])) {
 // Definir dados do usuário atual
 const CURRENT_USER = {
     id: <?= isset($_SESSION['usuario']) ? (int)$_SESSION['usuario'] : 0 ?>,
-    tipo: "<?= isset($_SESSION['tipo']) ? $_SESSION['tipo'] : '' ?>",
-    nome: "<?= isset($_SESSION['nome']) ? $_SESSION['nome'] : '' ?>"
+    tipo: "<?= isset($_SESSION['tipo']) ? htmlspecialchars($_SESSION['tipo'], ENT_QUOTES, 'UTF-8') : '' ?>",
+    nome: "<?= isset($_SESSION['nome']) ? htmlspecialchars($_SESSION['nome'], ENT_QUOTES, 'UTF-8') : '' ?>"
 };
 
 console.log('Usuário atual:', CURRENT_USER);

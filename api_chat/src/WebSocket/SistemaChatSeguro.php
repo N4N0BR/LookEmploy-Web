@@ -30,10 +30,16 @@ class SistemaChatSeguro implements MessageComponentInterface
         $this->authenticatedUsers = [];
 
         try {
+            $dbHost = $_ENV['DB_HOST'] ?? 'localhost';
+            $dbName = $_ENV['DB_NAME'] ?? 'LookEmploy';
+            $dbUser = $_ENV['DB_USER'] ?? 'root';
+            $dbPass = $_ENV['DB_PASS'] ?? '';
+            $dbCharset = $_ENV['DB_CHARSET'] ?? 'utf8mb4';
+
             $this->pdo = new PDO(
-                "mysql:host=localhost;dbname=lookemploy;charset=utf8mb4", 
-                "root", 
-                "", 
+                "mysql:host={$dbHost};dbname={$dbName};charset={$dbCharset}",
+                $dbUser,
+                $dbPass,
                 [
                     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
@@ -217,14 +223,26 @@ class SistemaChatSeguro implements MessageComponentInterface
         }
 
         try {
+            $a = min($from->userId, $destinatarioId);
+            $b = max($from->userId, $destinatarioId);
+
+            $stmt = $this->pdo->prepare("SELECT id FROM conversas WHERE user_a = ? AND user_b = ?");
+            $stmt->execute([$a, $b]);
+            $conversaId = (int)($stmt->fetchColumn() ?: 0);
+            if (!$conversaId) {
+                $stmt = $this->pdo->prepare("INSERT INTO conversas (user_a, user_b) VALUES (?, ?)");
+                $stmt->execute([$a, $b]);
+                $conversaId = (int)$this->pdo->lastInsertId();
+            }
+
             $mensagemCriptografada = $this->encryption->encrypt($mensagem);
 
             $stmt = $this->pdo->prepare("
-                INSERT INTO mensagens (remetente_id, destinatario_id, mensagem, data_envio, entregue, lido)
-                VALUES (?, ?, ?, NOW(), 0, 0)
+                INSERT INTO mensagens (remetente_id, destinatario_id, conversa_id, mensagem, data_envio, entregue, lido)
+                VALUES (?, ?, ?, ?, NOW(), 0, 0)
             ");
 
-            $stmt->execute([$from->userId, $destinatarioId, $mensagemCriptografada]);
+            $stmt->execute([$from->userId, $destinatarioId, $conversaId, $mensagemCriptografada]);
             $mensagemId = $this->pdo->lastInsertId();
 
             echo "Mensagem salva: User {$from->userId} -> User {$destinatarioId}\n";

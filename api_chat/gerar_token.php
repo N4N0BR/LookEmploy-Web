@@ -38,13 +38,39 @@ if (class_exists(Dotenv::class)) {
     }
 }
 
-// Verificar se usuário está logado
-// Aceitar chaves alternativas na sessão para compatibilidade
-$userId = isset($_SESSION['usuario']) ? (int)$_SESSION['usuario'] : (isset($_SESSION['usuario_id']) ? (int)$_SESSION['usuario_id'] : 0);
+// Verificar sessão e mapear para usuarios.id
+$rawSessionId = isset($_SESSION['usuario_id']) ? (int)$_SESSION['usuario_id'] : (isset($_SESSION['usuario']) ? (int)$_SESSION['usuario'] : 0);
 $userName = $_SESSION['nome'] ?? ($_SESSION['user_name'] ?? '');
 $userType = $_SESSION['tipo'] ?? ($_SESSION['user_type'] ?? '');
 
-if (!$userId || !$userName || !$userType) {
+// Mapear IDs de Cliente/Prestador para usuarios.id
+$mappedUserId = 0;
+try {
+    require __DIR__ . '/conectar.php';
+    $tipoSessao = $_SESSION['tipo'] ?? '';
+    if ($rawSessionId) {
+        if (strcasecmp($tipoSessao, 'Cliente') === 0) {
+            $st = $pdo->prepare('SELECT usuario_id FROM Cliente WHERE ID = ?');
+            $st->execute([$rawSessionId]);
+            $mappedUserId = (int)$st->fetchColumn();
+        } else if (strcasecmp($tipoSessao, 'Prestador') === 0) {
+            $st = $pdo->prepare('SELECT usuario_id FROM Prestador WHERE ID = ?');
+            $st->execute([$rawSessionId]);
+            $mappedUserId = (int)$st->fetchColumn();
+        } else {
+            $mappedUserId = $rawSessionId;
+        }
+        if (!$mappedUserId) {
+            // Fallback: se sessão já é usuarios.id
+            $mappedUserId = $rawSessionId;
+        }
+    }
+} catch (\Exception $e) {
+    // Fallback silencioso: usa ID cru
+    $mappedUserId = $rawSessionId;
+}
+
+if (!$mappedUserId || !$userName || !$userType) {
     echo json_encode([
         'error' => 'Usuário não autenticado',
         'details' => [
@@ -60,18 +86,18 @@ if (!$userId || !$userName || !$userType) {
 try {
     $jwtHandler = new JWTHandler();
     
-    // Gerar token com os dados da sessão
+    // Gerar token com usuarios.id mapeado
     $token = $jwtHandler->generateToken(
-        $userId,        // ID do usuário
-        $userName,      // Nome do usuário
-        $userType       // Tipo (Cliente/Prestador)
+        $mappedUserId,
+        $userName,
+        $userType
     );
 
     echo json_encode([
         'success' => true,
         'token' => $token,
         'usuario' => [
-            'id' => $userId,
+            'id' => $mappedUserId,
             'nome' => $userName,
             'tipo' => $userType
         ]
